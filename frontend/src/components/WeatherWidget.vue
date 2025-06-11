@@ -23,6 +23,7 @@
 import axios from 'axios'
 
 export default {
+  props: ['widget'],
   data() {
     return {
       city: '',

@@ -4,7 +4,7 @@
         <button class="close-btn" @click="$emit('close')">✖</button>
     </div>
     <div class="widget-content">
-      <component :is="getComponent()" />
+      <component :is="getComponent()" :widget="widget" />
     </div>
   </div>
 </template>

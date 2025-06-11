@@ -37,6 +37,18 @@ def save_widgets():
     write_widgets(widgets)
     return jsonify({'status': 'ok'}), 200
 
+@app.route('/api/widgets/<int:widget_id>', methods=['PUT'])
+def update_widget_config(widget_id):
+    widgets = read_widgets()
+    for widget in widgets:
+        if widget['id'] == widget_id:
+            widget['config'] = request.get_json()
+            break
+    write_widgets(widgets)
+    return jsonify({'status': 'updated'})
+
+
+
 # WEATHER ENDPOINTS
 
 OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY')

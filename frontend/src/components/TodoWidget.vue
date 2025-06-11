@@ -1,58 +1,100 @@
 <template>
   <div class="todo-widget">
-    <input v-model="newTask" @keyup.enter="addTask" placeholder="Nouvelle tâche" class="task-input" />
+    <input
+      v-model="editableTitle"
+      class="title-input"
+      @blur="saveConfig"
+      placeholder="Titre de la todo"
+    />
+
+    <input
+      v-model="newTask"
+      @keyup.enter="addTask"
+      placeholder="Nouvelle tâche"
+      class="task-input"
+    />
+
     <ul class="task-list">
-      <li v-for="todo in sortedTodos" :key="todo.id" class="task-item">
-        <input type="checkbox" v-model="todo.done" @change="updateTask(todo)" />
+      <li
+        v-for="(todo, index) in config.tasks"
+        :key="todo.id"
+        class="task-item"
+      >
+        <input
+          type="checkbox"
+          :checked="todo.done"
+          @change="toggleDone(index)"
+        />
         <span :class="{ done: todo.done }">{{ todo.text }}</span>
-        <button @click="deleteTask(todo.id)" class="delete-btn">✖</button>
+        <button @click="deleteTask(index)" class="delete-btn">✖</button>
       </li>
     </ul>
   </div>
 </template>
 
+
 <script>
 import axios from 'axios'
-import bus from '../eventBus'
 
 export default {
+  props: ['widget'],
   data() {
     return {
-      todos: [],
-      newTask: ''
+      newTask: '',
+      editableTitle: '',
+      config: {
+        title: 'Ma Todo',
+        tasks: []
+      }
     }
   },
   computed: {
-    sortedTodos() {
-      return [...this.todos].sort((a, b) => a.done - b.done)
+    sortedTasks() {
+      return [...this.config.tasks].sort((a, b) => a.done - b.done)
     }
   },
   methods: {
-    async fetchTodos() {
-      const res = await axios.get('http://localhost:5000/api/todos')
-      this.todos = res.data
+    async saveConfig() {
+      this.config.title = this.editableTitle
+      try {
+        await axios.put(`http://localhost:5000/api/widgets/${this.widget.id}`, this.config)
+      } catch (e) {
+        console.error('Erreur sauvegarde widget:', e)
+      }
     },
-    async addTask() {
-      if (!this.newTask.trim()) return
-      await axios.post('http://localhost:5000/api/todos', { text: this.newTask })
-      this.newTask = ''
-      bus.emit('refresh-todos')
+    toggleDone(index) {
+        this.config.tasks[index].done = !this.config.tasks[index].done
+        // Réorganise la liste après changement
+        this.config.tasks.sort((a, b) => a.done - b.done)
+        this.saveConfig()
     },
-    async updateTask(todo) {
-      await axios.put(`http://localhost:5000/api/todos/${todo.id}`, todo)
-      bus.emit('refresh-todos')
+    addTask() {
+        if (!this.newTask.trim()) return
+        this.config.tasks.push({
+            id: Date.now() + Math.random(),
+            text: this.newTask.trim(),
+            done: false
+        })
+        this.newTask = ''
+        this.saveConfig()
     },
-    async deleteTask(id) {
-      await axios.delete(`http://localhost:5000/api/todos/${id}`)
-      bus.emit('refresh-todos')
+    deleteTask(index) {
+        this.config.tasks.splice(index, 1)
+        this.saveConfig()
+    },
+    loadConfig() {
+      if (this.widget.config && this.widget.config.tasks) {
+        this.config = JSON.parse(JSON.stringify(this.widget.config))
+        this.editableTitle = this.config.title || 'Ma Todo'
+      } else {
+        this.config = { title: 'Ma Todo', tasks: [] }
+        this.editableTitle = this.config.title
+        this.saveConfig()
+      }
     }
   },
   mounted() {
-    this.fetchTodos()
-    bus.on('refresh-todos', this.fetchTodos)
-  },
-  beforeUnmount() {
-    bus.off('refresh-todos', this.fetchTodos)
+    this.loadConfig()
   }
 }
 </script>
@@ -62,6 +104,20 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.title-input {
+  width: 100%;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  color: #f0f0f0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #555;
+  margin-bottom: 1rem;
+  padding-bottom: 0.3rem;
+  outline: none;
 }
 
 .task-input {
@@ -89,17 +145,15 @@ export default {
   padding: 0.5rem 1rem;
   margin-bottom: 0.6rem;
   border-radius: 6px;
-}
-
-.task-item input[type='checkbox'] {
-  margin-right: 0.8rem;
-  accent-color: #3498db;
+  width: 100%;         /* ✅ S'assurer que l'élément occupe toute la largeur */
+  box-sizing: border-box;
 }
 
 .task-item span {
   flex: 1;
   color: white;
   text-align: left;
+  padding-left: 10px;
 }
 
 .task-item span.done {
