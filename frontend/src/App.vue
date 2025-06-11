@@ -1,0 +1,127 @@
+<template>
+  <div class="app">
+    <nav class="navbar">
+      <h1>Mon Dashboard</h1>
+      <select v-model="selectedWidget" @change="addWidget">
+        <option disabled value="">Ajouter un widget...</option>
+        <option value="todo">Todo List</option>
+        <option value="calculator">Calculatrice</option>
+        <option value="weather">Météo</option>
+      </select>
+    </nav>
+
+    <draggable
+      v-model="widgets"
+      class="dashboard"
+      item-key="id"
+      :component-data="{ tag: 'div' }"
+      :animation="200"
+      ghost-class="ghost"
+    >
+      <template #item="{ element }">
+        <div :key="element.id">
+          <DashboardWidget
+            :widget="element"
+            @close="removeWidget(element.id)"
+          />
+        </div>
+      </template>
+    </draggable>
+  </div>
+</template>
+
+<script>
+import draggable from 'vuedraggable'
+import DashboardWidget from './components/DashboardWidget.vue'
+import axios from 'axios'
+
+export default {
+  components: { draggable, DashboardWidget },
+  data() {
+    return {
+      selectedWidget: '',
+      widgets: []
+    }
+  },
+  methods: {
+    async loadWidgets() {
+      const res = await axios.get('http://localhost:5000/api/widgets')
+      this.widgets = res.data
+    },
+    async saveWidgets() {
+      await axios.post('http://localhost:5000/api/widgets', this.widgets)
+    },
+    async addWidget() {
+      if (!this.selectedWidget) return
+      this.widgets.push({
+        id: Date.now(),
+        type: this.selectedWidget,
+        config: {}
+      })
+      this.selectedWidget = ''
+      this.saveWidgets()
+    },
+    async removeWidget(id) {
+      this.widgets = this.widgets.filter(w => w.id !== id)
+      this.saveWidgets()
+    }
+  },
+  watch: {
+    widgets: {
+      handler() {
+        this.saveWidgets()
+      },
+      deep: true
+    }
+  },
+  mounted() {
+    this.loadWidgets()
+  }
+}
+</script>
+
+<style scoped>
+.app {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  flex-direction: column;
+  font-family: sans-serif;
+  background-color: #1e1e1e;
+  color: white;
+}
+
+.navbar {
+  background: #121212;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #2e2e2e;
+}
+
+.navbar select {
+  background: #2e2e2e;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.6rem;
+  border-radius: 5px;
+}
+
+.dashboard {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* ⬅️ réduit largeur min */
+  gap: 1rem;
+  padding: 1.5rem;
+  overflow-y: auto;
+  align-items: stretch;
+}
+
+
+
+.ghost {
+  opacity: 0.5;
+}
+</style>
