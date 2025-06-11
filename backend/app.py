@@ -4,6 +4,11 @@ from flask_cors import CORS
 import os
 import json
 
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 app = Flask(__name__)
 CORS(app)
 
@@ -34,7 +39,7 @@ def save_widgets():
 
 # WEATHER ENDPOINTS
 
-OPENWEATHER_API_KEY = '1c386c495b48de29a8c3da2173ca9672'
+OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY')
 
 @app.route('/api/weather')
 def get_weather():
