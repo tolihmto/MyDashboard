@@ -10,23 +10,6 @@ Chaque widget est **déplaçable, fermable, personnalisable**, et le dashboard e
 
 ---
 
-## 📁 Structure du projet
-
-.
-├── backend/ # Serveur Flask
-│ ├── app.py # API REST principale
-│ ├── todos.json # Sauvegarde des tâches
-│ └── widgets.json # Sauvegarde de la structure du dashboard
-├── frontend/ # Application Vue 3
-│ ├── src/
-│ │ ├── components/
-│ │ │ ├── DashboardWidget.vue
-│ │ │ ├── TodoWidget.vue
-│ │ │ ├── CalculatorWidget.vue
-│ │ │ └── WeatherWidget.vue
-│ │ └── App.vue
-│ └── vite.config.js
-
 ## ⚙️ Installation
 
 ### 🐍 Backend (Flask)
