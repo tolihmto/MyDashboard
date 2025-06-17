@@ -13,7 +13,7 @@
 
 <script>
 export default {
-  props: ['widget'],
+  props: ['config'],
   data() {
     return {
       expression: '',
@@ -23,17 +23,15 @@ export default {
   methods: {
     calculate() {
       try {
-        // Remplace les virgules par des points pour supporter les décimales
         const safeExpr = this.expression.replace(/,/g, '.')
         const evalResult = eval(safeExpr)
-
-        // Si le résultat est un float, arrondi à 6 chiffres max
         this.result = Number.isFinite(evalResult)
           ? Number(evalResult.toFixed(6))
           : 'Erreur'
       } catch {
         this.result = 'Erreur'
       }
+      this.$emit('update')
     }
   }
 }
@@ -46,7 +44,6 @@ export default {
   align-items: center;
   justify-content: center;
 }
-
 .calc-input {
   width: 100%;
   padding: 0.6rem;
@@ -56,7 +53,6 @@ export default {
   border-radius: 6px;
   margin-bottom: 1rem;
 }
-
 .calc-btn {
   background: #3498db;
   color: white;
@@ -71,7 +67,6 @@ export default {
 .calc-btn:hover {
   background: #2980b9;
 }
-
 .calc-result {
   color: #ecf0f1;
   font-size: 1.1rem;

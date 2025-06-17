@@ -16,26 +16,34 @@ CORS(app)
 
 WIDGETS_FILE = 'widgets.json'
 
+# 🔁 Charge les widgets depuis le fichier
 def read_widgets():
     if not os.path.exists(WIDGETS_FILE):
-        with open(WIDGETS_FILE, 'w') as f:
-            json.dump([], f)
-    with open(WIDGETS_FILE) as f:
-        return json.load(f)
+        return []
+    with open(WIDGETS_FILE, 'r', encoding='utf-8') as f:
+        try:
+            return json.load(f)
+        except json.JSONDecodeError:
+            return []
 
+# 💾 Sauvegarde les widgets dans le fichier
 def write_widgets(widgets):
-    with open(WIDGETS_FILE, 'w') as f:
-        json.dump(widgets, f)
+    with open(WIDGETS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(widgets, f, indent=2)
 
+# 🔁 Endpoint GET
 @app.route('/api/widgets', methods=['GET'])
 def get_widgets():
     return jsonify(read_widgets())
 
+# 💾 Endpoint POST (remplace tous les widgets)
 @app.route('/api/widgets', methods=['POST'])
 def save_widgets():
-    widgets = request.get_json()
-    write_widgets(widgets)
-    return jsonify({'status': 'ok'}), 200
+    data = request.get_json()
+    with open('widgets.json', 'w') as f:
+        json.dump(data, f, indent=2)
+    return jsonify({'status': 'success'})
+
 
 @app.route('/api/widgets/<int:widget_id>', methods=['PUT'])
 def update_widget_config(widget_id):

@@ -14,15 +14,16 @@
       v-model="widgets"
       class="dashboard"
       item-key="id"
-      :component-data="{ tag: 'div' }"
       :animation="200"
       ghost-class="ghost"
+      @end="onDragEnd"
     >
       <template #item="{ element }">
         <div :key="element.id">
           <DashboardWidget
             :widget="element"
             @close="removeWidget(element.id)"
+            @update="saveWidgets"
           />
         </div>
       </template>
@@ -64,6 +65,9 @@ export default {
     async removeWidget(id) {
       this.widgets = this.widgets.filter(w => w.id !== id)
       this.saveWidgets()
+    },
+    onDragEnd() {
+      this.saveWidgets()
     }
   },
   watch: {
@@ -82,10 +86,9 @@ export default {
 
 <style scoped>
 .app {
-  margin: 0;
-  padding: 0;
-  height: 100vh;
-  width: 100vw;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
   flex-direction: column;
   font-family: sans-serif;
   background-color: #1e1e1e;
@@ -111,13 +114,15 @@ export default {
 
 .dashboard {
   flex: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* ⬅️ réduit largeur min */
+  display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
-  padding: 1.5rem;
+  padding: 2rem;
+  justify-content: center;
+  align-content: start;
   overflow-y: auto;
-  align-items: stretch;
 }
+
 
 
 

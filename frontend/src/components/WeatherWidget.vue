@@ -23,12 +23,18 @@
 import axios from 'axios'
 
 export default {
-  props: ['widget'],
+  props: ['config'],
   data() {
     return {
-      city: '',
+      city: this.config.city || '',
       weather: null,
       error: ''
+    }
+  },
+  mounted() {
+    if (this.config.city) {
+      this.city = this.config.city
+      this.fetchWeather()
     }
   },
   methods: {
@@ -37,11 +43,15 @@ export default {
       try {
         const res = await axios.get(`http://localhost:5000/api/weather?city=${this.city}`)
         this.weather = res.data
-        this.error = ''
+        this.config.city = this.city
+        this.saveConfig()
       } catch (err) {
         this.error = 'Ville introuvable ou erreur réseau'
         this.weather = null
       }
+    },
+    saveConfig() {
+      this.$emit('update')
     }
   }
 }
@@ -53,7 +63,6 @@ export default {
   flex-direction: column;
   align-items: center;
 }
-
 .weather-input {
   width: 100%;
   padding: 0.6rem;
@@ -63,7 +72,6 @@ export default {
   color: white;
   border-radius: 6px;
 }
-
 .weather-btn {
   background: #3498db;
   color: white;
@@ -77,12 +85,10 @@ export default {
 .weather-btn:hover {
   background: #2980b9;
 }
-
 .weather-info {
   text-align: center;
   color: #ecf0f1;
 }
-
 .error {
   color: #e74c3c;
 }
