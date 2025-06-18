@@ -77,7 +77,6 @@ Chaque widget est **déplaçable, fermable, personnalisable**, et le dashboard e
 
 ### ✨ À venir
 
-    - Redimensionnement des widgets
     - Sauvegarde par utilisateur
     - Authentification / sessions
     ...
