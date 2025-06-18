@@ -57,7 +57,9 @@ export default {
       this.widgets.push({
         id: Date.now(),
         type: this.selectedWidget,
-        config: {}
+        config: this.selectedWidget === 'todo' ? { title: 'Ma todo', tasks: [] }
+              : this.selectedWidget === 'weather' ? { city: '' }
+              : {}
       })
       this.selectedWidget = ''
       this.saveWidgets()
