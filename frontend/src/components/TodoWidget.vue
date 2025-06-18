@@ -1,6 +1,12 @@
 <template>
   <div class="todo-widget">
-    <h2 class="todo-title" contenteditable @blur="saveTitle" v-text="editableTitle"></h2>
+    <h2
+      class="todo-title"
+      contenteditable
+      @blur="saveTitle"
+      :data-placeholder="'Titre de la todo'"
+      v-html="editableTitle || ''"
+    ></h2>
     <input
       v-model="newTask"
       @keyup.enter="addTask"
@@ -89,7 +95,25 @@ export default {
   margin-bottom: 1rem;
   outline: none;
   user-select: text;
+  min-height: 1.5em;
+  position: relative;
+  white-space: normal;
+  word-break: break-word; 
 }
+
+
+/* Pseudo-placeholder visible si vide */
+.todo-title:empty:before {
+  content: attr(data-placeholder);
+  color: #888;
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
 
 .title-input,
 .task-input {
