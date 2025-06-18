@@ -98,7 +98,7 @@ export default {
   min-height: 1.5em;
   position: relative;
   white-space: normal;
-  word-break: break-word; 
+  word-break: break-word;
 }
 
 
